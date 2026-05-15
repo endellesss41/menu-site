@@ -51,37 +51,30 @@ fetch(API_URL, {
   }
 })
 .then(res => {
-
-  console.log("STATUS:", res.status);
-
   if(!res.ok){
     throw new Error("HTTP " + res.status);
   }
-
   return res.json();
 })
 .then(data => {
 
   console.log("API DATA:", data);
 
-  const items = data.list || data.records || [];
-
-  if(items.length === 0){
-    document.getElementById("menu").innerHTML = "Veri yok";
-    return;
-  }
+  const items = data.records || [];
 
   let html = "";
   let lastCat = "";
 
   items.forEach(i => {
 
-    const aktif = i.aktif ?? true;
-    if(!aktif) return;
+    const f = i.fields || {}; // 🔥 KRİTİK FIX
 
-    const kategori = i.kategori || "Diğer";
-    const urun = i.urun || "Ürün";
-    const fiyat = i.fiyat || "-";
+    const aktif = f.aktif ?? true;
+    if(aktif === false) return;
+
+    const kategori = f.kategori || "Diğer";
+    const urun = f.urun || "Ürün";
+    const fiyat = f.fiyat || "-";
 
     if(kategori !== lastCat){
       lastCat = kategori;
@@ -96,7 +89,7 @@ fetch(API_URL, {
     `;
   });
 
-  document.getElementById("menu").innerHTML = html;
+  document.getElementById("menu").innerHTML = html || "Veri yok";
 
 })
 .catch(err => {
