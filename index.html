@@ -20,13 +20,13 @@ h1{
   font-size:22px;
   font-weight:bold;
   margin-top:25px;
-  color:#333;
+  color:#222;
 }
 
 .card{
   background:white;
   padding:12px;
-  margin:10px 0;
+  margin:8px 0;
   border-radius:10px;
   box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
@@ -36,24 +36,28 @@ h1{
 <body>
 
 <h1>MENÜ</h1>
-<div id="menu"></div>
+<div id="menu">Yükleniyor...</div>
 
 <script>
 
-const API_URL = "https://app.nocodb.com/api/v3/data/pkaijsm6lr42clm/mpdnw87dh3ym958/records";
-const API_KEY = "nc_pat_A7FGzt8laXsSf19184lxSpqn9yh59NY1eAuvTliA";
+const API_URL = "https://app.nocodb.com/api/v2/tables/mpdnw87dh3ym958/records";
+const API_KEY = "BURAYA_TOKENINI_KOY";
 
 fetch(API_URL, {
   method: "GET",
   headers: {
-    "Authorization": "Bearer " + API_KEY,
+    "xc-token": API_KEY,
     "Content-Type": "application/json"
   }
 })
 .then(res => {
+
+  console.log("STATUS:", res.status);
+
   if(!res.ok){
     throw new Error("HTTP " + res.status);
   }
+
   return res.json();
 })
 .then(data => {
@@ -62,8 +66,13 @@ fetch(API_URL, {
 
   const items = data.list || data.records || [];
 
+  if(items.length === 0){
+    document.getElementById("menu").innerHTML = "Veri yok";
+    return;
+  }
+
   let html = "";
-  let lastCategory = "";
+  let lastCat = "";
 
   items.forEach(i => {
 
@@ -74,8 +83,8 @@ fetch(API_URL, {
     const urun = i.urun || "Ürün";
     const fiyat = i.fiyat || "-";
 
-    if(kategori !== lastCategory){
-      lastCategory = kategori;
+    if(kategori !== lastCat){
+      lastCat = kategori;
       html += `<div class="kategori">${kategori}</div>`;
     }
 
@@ -93,7 +102,7 @@ fetch(API_URL, {
 .catch(err => {
   console.error(err);
   document.getElementById("menu").innerHTML =
-    "<h3 style='color:red'>Veri yüklenemedi</h3>";
+    "<h3 style='color:red'>Veri yüklenemedi: " + err.message + "</h3>";
 });
 
 </script>
