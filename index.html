@@ -3,10 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <title>Menü</title>
+
 <style>
-body { font-family: Arial; background:#f5f5f5; }
-.card { background:white; padding:15px; margin:10px; border-radius:10px; }
-.kategori { font-size:20px; font-weight:bold; margin-top:20px; }
+body{
+  font-family: Arial;
+  background:#f5f5f5;
+  margin:0;
+  padding:20px;
+}
+
+h1{
+  text-align:center;
+}
+
+.kategori{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:25px;
+  color:#333;
+}
+
+.grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.card{
+  background:white;
+  padding:12px;
+  border-radius:10px;
+  width:180px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
 </style>
 </head>
 
@@ -16,39 +45,62 @@ body { font-family: Arial; background:#f5f5f5; }
 <div id="menu"></div>
 
 <script>
+
 const API_URL = "https://app.nocodb.com/api/v3/data/pxrp2b2icf4llan/mma3f9ykr05us7h/records";
-const API_KEY = "nc_pat_5GT9Ie0_6uAQ-9lHPBIaoPCS3Z_kiiCDapvXdBZx";
+const API_KEY = "BURAYA_API_KEY";
 
 fetch(API_URL, {
+  method: "GET",
   headers: {
-    "xc-token": API_KEY
+    "xc-token": API_KEY,
+    "Content-Type": "application/json"
   }
 })
 .then(res => res.json())
 .then(data => {
+
+  console.log("API RAW:", data);
+
   const items = data.list || data.records || [];
+
   let html = "";
+  let lastCategory = "";
 
-  let currentCat = "";
+  items.forEach(item => {
 
-  items.forEach(i => {
-    if(i.aktif !== true) return;
+    // 🔥 field güvenli okuma
+    const aktif = item.aktif ?? true;
+    if(!aktif) return;
 
-    if(i.kategori !== currentCat){
-      currentCat = i.kategori;
-      html += `<div class="kategori">${currentCat}</div>`;
+    const kategori = item.kategori || item.Category || "Diğer";
+    const urun = item.urun || item.Urun || item.name || "Ürün";
+    const fiyat = item.fiyat || item.Fiyat || "-";
+
+    if(kategori !== lastCategory){
+      lastCategory = kategori;
+      html += `<div class="kategori">${kategori}</div><div class="grid">`;
     }
 
     html += `
       <div class="card">
-        <b>${i.urun}</b><br>
-        ${i.fiyat}
+        <b>${urun}</b><br>
+        ${fiyat}
       </div>
     `;
+
   });
 
+  html += `</div>`; // son grid kapatma
+
   document.getElementById("menu").innerHTML = html;
+
+})
+.catch(err => {
+  console.error("HATA:", err);
+  document.getElementById("menu").innerHTML =
+    "<h3 style='color:red'>Veri yüklenemedi</h3>";
 });
+
 </script>
 
 </body>
