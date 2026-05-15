@@ -23,18 +23,12 @@ h1{
   color:#333;
 }
 
-.grid{
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
 .card{
   background:white;
   padding:12px;
+  margin:10px 0;
   border-radius:10px;
-  width:180px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 </style>
 </head>
@@ -46,57 +40,58 @@ h1{
 
 <script>
 
-const API_URL = "https://app.nocodb.com/api/v3/data/pxrp2b2icf4llan/mma3f9ykr05us7h/records";
-const API_KEY = "BURAYA_API_KEY";
+const API_URL = "https://app.nocodb.com/api/v3/data/pkaijsm6lr42clm/mpdnw87dh3ym958/records";
+const API_KEY = "BURAYA_YENI_TOKENINI_KOY";
 
 fetch(API_URL, {
   method: "GET",
   headers: {
-    "xc-token": API_KEY,
+    "Authorization": "Bearer " + API_KEY,
     "Content-Type": "application/json"
   }
 })
-.then(res => res.json())
+.then(res => {
+  if(!res.ok){
+    throw new Error("HTTP " + res.status);
+  }
+  return res.json();
+})
 .then(data => {
 
-  console.log("API RAW:", data);
+  console.log("API DATA:", data);
 
   const items = data.list || data.records || [];
 
   let html = "";
   let lastCategory = "";
 
-  items.forEach(item => {
+  items.forEach(i => {
 
-    // 🔥 field güvenli okuma
-    const aktif = item.aktif ?? true;
+    const aktif = i.aktif ?? true;
     if(!aktif) return;
 
-    const kategori = item.kategori || item.Category || "Diğer";
-    const urun = item.urun || item.Urun || item.name || "Ürün";
-    const fiyat = item.fiyat || item.Fiyat || "-";
+    const kategori = i.kategori || "Diğer";
+    const urun = i.urun || "Ürün";
+    const fiyat = i.fiyat || "-";
 
     if(kategori !== lastCategory){
       lastCategory = kategori;
-      html += `<div class="kategori">${kategori}</div><div class="grid">`;
+      html += `<div class="kategori">${kategori}</div>`;
     }
 
     html += `
       <div class="card">
         <b>${urun}</b><br>
-        ${fiyat}
+        ${fiyat} ₺
       </div>
     `;
-
   });
-
-  html += `</div>`; // son grid kapatma
 
   document.getElementById("menu").innerHTML = html;
 
 })
 .catch(err => {
-  console.error("HATA:", err);
+  console.error(err);
   document.getElementById("menu").innerHTML =
     "<h3 style='color:red'>Veri yüklenemedi</h3>";
 });
