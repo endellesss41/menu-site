@@ -1,177 +1,54 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Restoran Menü</title>
-
+<title>Menü</title>
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f7f7f7;
-}
-
-/* HEADER */
-.header {
-    background: #111;
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-.search-box {
-    margin-top: 10px;
-}
-
-.search-box input {
-    padding: 10px;
-    width: 80%;
-    max-width: 400px;
-    border-radius: 8px;
-    border: none;
-}
-
-/* CATEGORY */
-.categories {
-    display: flex;
-    overflow-x: auto;
-    background: white;
-    padding: 10px;
-    gap: 10px;
-}
-
-.categories button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 20px;
-    background: #eee;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.categories button.active {
-    background: #111;
-    color: white;
-}
-
-/* MENU GRID */
-.menu {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 15px;
-    padding: 20px;
-}
-
-.card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-}
-
-.card-content {
-    padding: 10px;
-}
-
-.price {
-    color: green;
-    font-weight: bold;
-}
-
-/* HIDE */
-.hide {
-    display: none;
-}
+body { font-family: Arial; background:#f5f5f5; }
+.card { background:white; padding:15px; margin:10px; border-radius:10px; }
+.kategori { font-size:20px; font-weight:bold; margin-top:20px; }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>🍽️ Restoran Menü</h1>
-    <div class="search-box">
-        <input type="text" id="search" placeholder="Ürün ara...">
-    </div>
-</div>
-
-<div class="categories">
-    <button class="active" onclick="filterCategory('all')">Hepsi</button>
-    <button onclick="filterCategory('soups')">Çorbalar</button>
-    <button onclick="filterCategory('salads')">Salatalar</button>
-    button onclick="filterCategory('burgers')">Burger</button>
-    <button onclick="filterCategory('pizzas')">Pizza</button>
-    <button onclick="filterCategory('drinks')">İçecekler</button>
-</div>
-
-<div class="menu" id="menu">
-
-    <div class="card soups">
-        <img src="https://images.unsplash.com/photo-1547592166-23ac45744acd">
-        <div class="card-content">
-            <h4>Mercimek Çorbası</h4>
-            <p class="price">80 TL</p>
-        </div>
-    </div>
-
-    <div class="card burgers">
-        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349">
-        <div class="card-content">
-            <h4>Cheeseburger</h4>
-            <p class="price">180 TL</p>
-        </div>
-    </div>
-
-    <div class="card pizzas">
-        <img src="https://images.unsplash.com/photo-1548365328-9f547c2f3a6e">
-        <div class="card-content">
-            <h4>Pizza Margherita</h4>
-            <p class="price">220 TL</p>
-        </div>
-    </div>
-
-    <div class="card drinks">
-        <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b">
-        <div class="card-content">
-            <h4>Kola</h4>
-            <p class="price">50 TL</p>
-        </div>
-    </div>
-
-</div>
+<h1>MENÜ</h1>
+<div id="menu"></div>
 
 <script>
-const search = document.getElementById("search");
-const cards = document.querySelectorAll(".card");
+const API_URL = "BURAYA_NOCODB_API";
+const API_KEY = "BURAYA_API_KEY";
 
-search.addEventListener("keyup", function() {
-    let value = this.value.toLowerCase();
+fetch(API_URL, {
+  headers: {
+    "xc-token": API_KEY
+  }
+})
+.then(res => res.json())
+.then(data => {
+  const items = data.list;
+  let html = "";
 
-    cards.forEach(card => {
-        let text = card.innerText.toLowerCase();
-        card.style.display = text.includes(value) ? "block" : "none";
-    });
+  let currentCat = "";
+
+  items.forEach(i => {
+    if(i.aktif !== true) return;
+
+    if(i.kategori !== currentCat){
+      currentCat = i.kategori;
+      html += `<div class="kategori">${currentCat}</div>`;
+    }
+
+    html += `
+      <div class="card">
+        <b>${i.urun}</b><br>
+        ${i.fiyat}
+      </div>
+    `;
+  });
+
+  document.getElementById("menu").innerHTML = html;
 });
-
-function filterCategory(category) {
-    let buttons = document.querySelectorAll(".categories button");
-    buttons.forEach(btn => btn.classList.remove("active"));
-    event.target.classList.add("active");
-
-    cards.forEach(card => {
-        if(category === "all") {
-            card.style.display = "block";
-        } else {
-            card.style.display = card.classList.contains(category) ? "block" : "none";
-        }
-    });
-}
 </script>
 
 </body>
