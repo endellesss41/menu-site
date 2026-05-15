@@ -40,8 +40,11 @@ h1{
 
 <script>
 
+// 🔥 1. DOĞRU API (v2 kullanıyoruz)
 const API_URL = "https://app.nocodb.com/api/v2/tables/mpdnw87dh3ym958/records";
-const API_KEY = "BURAYA_TOKENINI_KOY";
+
+// 🔥 2. TOKEN (BURAYA KENDİ TOKENİNİ KOY)
+const API_KEY = "nc_pat_A7FGzt8laXsSf19184lxSpqn9yh59NY1eAuvTliA";
 
 fetch(API_URL, {
   method: "GET",
@@ -51,23 +54,28 @@ fetch(API_URL, {
   }
 })
 .then(res => {
+
+  console.log("STATUS:", res.status);
+
   if(!res.ok){
     throw new Error("HTTP " + res.status);
   }
+
   return res.json();
 })
 .then(data => {
 
   console.log("API DATA:", data);
 
+  // 🔥 NocoDB structure fix
   const items = data.records || [];
 
   let html = "";
   let lastCat = "";
 
-  items.forEach(i => {
+  items.forEach(row => {
 
-    const f = i.fields || {}; // 🔥 KRİTİK FIX
+    const f = row.fields || {};
 
     const aktif = f.aktif ?? true;
     if(aktif === false) return;
